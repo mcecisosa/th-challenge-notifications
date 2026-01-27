@@ -1,0 +1,39 @@
+version: 2.1
+orbs:
+  node: circleci/node@5.0.2
+jobs:
+  build_and_test: # this can be any name you choose  
+    docker:
+      # Primary container
+      - image: cimg/node:20.9.0
+        environment:
+          DATABASE_HOST: 0.0.0.0
+          DATABASE_PORT: 5432
+          DATABASE_USER: postgres
+          DATABASE_PASSWORD: postgres
+          DATABASE_NAME: app_test_DB
+          POKEMON_API_URL: https://pokeapi.co/api/v2          
+      # Service container image
+      - image: cimg/postgres:16.0
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: app_test_DB  
+    executor: node/default # use the default executor defined within the orb
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+      - run:
+          command: npm run test:e2e
+          name: Run tests     
+      - run:
+          command: npm run build
+          name: Install and make
+      - persist_to_workspace:
+          root: ~/project
+          paths: .                 
+workflows:
+  build_test_deploy: # this can be any name you choose
+    jobs:
+      - build_and_test
