@@ -5,6 +5,7 @@ Every request must only accept this `Content-type: application/json`.
 
 ### Badges
 
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/mcecisosa/th-challenge-notifications/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/mcecisosa/th-challenge-notifications/tree/master)
 
 ### Features
 
