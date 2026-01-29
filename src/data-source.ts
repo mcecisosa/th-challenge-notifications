@@ -1,7 +1,8 @@
 import * as dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
-import { User } from './modules/users/user.entity';
 import { join } from 'path';
+import { User } from './modules/users/user.entity';
+import { Notification } from './modules/notifications/notification.entity';
 
 // Load environment variables from .env file
 dotenv.config({
@@ -23,7 +24,7 @@ const dataSourceConfig = {
   username,
   password,
   database,
-  entities: [User],
+  entities: [User, Notification],
   synchronize: true,
   migrations: [
     join(__dirname, '..', 'migrations', '*.{ts,js}'),
