@@ -6,6 +6,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { InvalidCredentialsError } from 'src/modules/auth/domain/errors/invalid-credentials.error';
 import { UserNotFoundError } from 'src/modules/users/domain/errors/user-not-found.error';
 
 //@Catch sin paramentros significa intercepta cualquier error
@@ -29,6 +30,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
     // errores de dominio - 404
     if (exception instanceof UserNotFoundError) {
       return response.status(HttpStatus.NOT_FOUND).json({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: exception.message,
+      });
+    }
+
+    // errores de dominio - 404
+    if (exception instanceof InvalidCredentialsError) {
+      return response.status(HttpStatus.UNAUTHORIZED).json({
         statusCode: HttpStatus.NOT_FOUND,
         message: exception.message,
       });
