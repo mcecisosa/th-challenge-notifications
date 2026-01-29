@@ -1,7 +1,7 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from 'src/app.module';
-import { User } from 'src/modules/users/domain/entity/user.entity';
+import { User } from 'src/modules/users/user.entity';
 import { HttpExceptionFilter } from 'src/shared/filters/http-exception.filter';
 import { DataSource, Repository } from 'typeorm';
 
