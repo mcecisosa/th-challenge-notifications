@@ -18,10 +18,18 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('Users API')
-    .setDescription('The Users API')
+    .setTitle('Notifications API')
+    .setDescription('The Notificactions API')
     .setVersion('1.0')
-    .addTag('users')
+    .addTag('notifications')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+      'jwt',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
