@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
-import { User } from './modules/users/domain/entity/user.entity';
+import { User } from './modules/users/user.entity';
 import { join } from 'path';
 
 // Load environment variables from .env file
