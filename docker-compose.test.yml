@@ -1,22 +1,22 @@
 version: '3.9'
 
 services:
-  api:
-    command: >
-      sh -c "npm run test:e2e"
-    container_name: cont_api_app_test
-    depends_on:
-      - postgres
-    build:
-      context: .
-      dockerfile: Dockerfile
-    environment:
-      - DATABASE_HOST=postgres
-      - DATABASE_PORT=5432
-      - DATABASE_USER=app_test_user
-      - DATABASE_PASSWORD=app_test_password
-      - DATABASE_NAME=app_test_DB
-      - POKEMON_API_URL=https://pokeapi.co/api/v2  
+#  api:
+#    command: >
+#      sh -c "npm run test:e2e"
+#    container_name: cont_api_app_test
+#    depends_on:
+#      - postgres
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    environment:
+#      - DATABASE_HOST=postgres
+#      - DATABASE_PORT=5432
+#      - DATABASE_USER=app_test_user
+#      - DATABASE_PASSWORD=app_test_password
+#      - DATABASE_NAME=app_test_DB
+#      - POKEMON_API_URL=https://pokeapi.co/api/v2  
 
   postgres:
     image: postgres:16

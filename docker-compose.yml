@@ -1,29 +1,29 @@
 version: '3.9'
 
 services:
-  api:
-    command: >
-      sh -c "npm run start:prod"
-    container_name: cont_api_app_dev
-    depends_on:    
-      - postgres
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports: 
-      - 3000:3000
-    environment:
-      - DATABASE_HOST=postgres
-      - DATABASE_PORT=5432
-      - DATABASE_USER=app_dev_user
-      - DATABASE_PASSWORD=app_dev_password
-      - DATABASE_NAME=app_dev
-      - POKEMON_API_URL=https://pokeapi.co/api/v2
-    restart: unless-stopped
+  #  api:
+  #    command: >
+  #      sh -c "npm run start:prod"
+  #    container_name: cont_api_app_dev
+  #    depends_on:
+  #      - postgres
+  #    build:
+  #      context: .
+  #      dockerfile: Dockerfile
+  #    ports:
+  #      - 3000:3000
+  #    environment:
+  #      - DATABASE_HOST=postgres
+  #      - DATABASE_PORT=5432
+  #      - DATABASE_USER=app_dev_user
+  #      - DATABASE_PASSWORD=app_dev_password
+  #      - DATABASE_NAME=app_dev
+  #      - POKEMON_API_URL=https://pokeapi.co/api/v2
+  #    restart: unless-stopped
 
   postgres:
     image: postgres:16
-    container_name: cont_postgres_app_dev    
+    container_name: cont_postgres_app_dev
     ports:
       - '5432:5432'
     environment:
