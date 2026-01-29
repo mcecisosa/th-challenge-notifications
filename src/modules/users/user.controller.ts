@@ -7,15 +7,10 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
-import { GetAllUsersUseCase } from './application/use-cases/get-all-users.use-case';
-import { CreateUserDto } from './dto/create-user.dto';
-import { CreateUserUseCase } from './application/use-cases/create-user.use-case';
-import { UserResponseDto } from './dto/user-response.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { UpdateUserUseCase } from './application/use-cases/update-user.use-case';
-import { DeleteUserUseCase } from './application/use-cases/delete-user.use-case';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
@@ -23,24 +18,29 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { UserWithPokemonResponseDto } from './dto/user-with-pokemon-response.dto';
-import { GetUserByIdWithPokemonUseCase } from './application/use-cases/get-by-id-user-with-pokemon.use-case';
-import { UpdatePokemonIdsDto } from './dto/update-pokemon-ids.dto';
-import { UserWithPokemonIdsResponseDto } from './dto/user-with-pokemon-ids-response.dto';
-import { UpdatePokemonIdsUseCase } from './application/use-cases/update-pokemon-ids.use-case';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UserResponseDto } from './dto/user-response.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { GetAllUsersService } from './application/get-all-users.service';
+import { CreateUserService } from './application/create-user.service';
+import { UpdateUserService } from './application/update-user.service';
+import { DeleteUserService } from './application/delete-user.service';
+import { getUserByIdService } from './application/get-by-id-user.service';
+import { JwtAuthGuard } from '../auth/infrastructure/jwt-auth.guard';
 
 //sin try--catch, sin logica, sin repos
 
 @ApiTags('Users')
 @Controller('users')
+@ApiBearerAuth('jwt')
+@UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(
-    private readonly getAllUserUseCase: GetAllUsersUseCase,
-    private readonly getUserByIdWithPokemonUseCase: GetUserByIdWithPokemonUseCase,
-    private readonly createUserUseCase: CreateUserUseCase,
-    private readonly updateUserUseCase: UpdateUserUseCase,
-    private readonly deleteUserUseCase: DeleteUserUseCase,
-    private readonly updatePokemonIdsUseCase: UpdatePokemonIdsUseCase,
+    private readonly getAllUserService: GetAllUsersService,
+    private readonly getUserByIdService: getUserByIdService,
+    private readonly createUserService: CreateUserService,
+    private readonly updateUserService: UpdateUserService,
+    private readonly deleteUserService: DeleteUserService,
   ) {}
 
   @Get()
@@ -50,22 +50,23 @@ export class UserController {
     type: UserResponseDto,
     isArray: true,
   })
-  GetAll() {
-    return this.getAllUserUseCase.execute();
+  async getAll() {
+    const users = await this.getAllUserService.execute();
+    return users.map((user) => UserResponseDto.fromEntity(user));
   }
 
   @Get(':id')
   @ApiOperation({
-    summary: 'Get a user by idwith their Pokemon details including names',
+    summary: 'Get a user by id',
   })
   @ApiParam({ name: 'id', description: 'The user id' })
   @ApiOkResponse({
-    description:
-      'Returns the user with the specified id and their Pokemon details (including names) fetched from the Pokemon API',
-    type: UserWithPokemonResponseDto,
+    description: 'Returns the user with the specified id',
+    type: UserResponseDto,
   })
-  GetById(@Param('id', ParseIntPipe) id: number) {
-    return this.getUserByIdWithPokemonUseCase.execute(id);
+  async getById(@Param('id', ParseIntPipe) id: number) {
+    const user = await this.getUserByIdService.execute(id);
+    return UserResponseDto.fromEntity(user);
   }
 
   @Post()
@@ -76,31 +77,25 @@ export class UserController {
     type: UserResponseDto,
   })
   async create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
-    console.log('controller createUserDto:', createUserDto);
-    const userData = {
-      ...createUserDto,
-      pokemonIds: createUserDto.pokemonIds || [],
-    };
-    console.log('userData del controller:', userData);
-    const user = await this.createUserUseCase.execute(userData);
+    const user = await this.createUserService.execute(createUserDto);
 
-    return UserResponseDto.fromEntity(user);
+    return user;
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Update a user including their Pokemon IDs' })
+  @ApiOperation({ summary: 'Update a user' })
   @ApiParam({ name: 'id', description: 'The user id' })
   @ApiBody({ type: UpdateUserDto })
   @ApiOkResponse({
     description:
-      'The user has been successfully updated with all provided fields including Pokemon IDs if provided',
+      'The user has been successfully updated with all provided fields',
     type: UserResponseDto,
   })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateUserDto,
   ): Promise<UserResponseDto> {
-    const user = await this.updateUserUseCase.execute(id, dto);
+    const user = await this.updateUserService.execute(id, dto);
 
     return UserResponseDto.fromEntity(user);
   }
@@ -110,16 +105,6 @@ export class UserController {
   @ApiParam({ name: 'id', description: 'The user id' })
   @ApiOkResponse({ description: 'The user has been succesfully deleted' })
   async delete(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    await this.deleteUserUseCase.execute(id);
-  }
-
-  @Put(':id/pokemon')
-  async updatePokemonIds(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdatePokemonIdsDto,
-  ): Promise<UserWithPokemonIdsResponseDto> {
-    const user = await this.updatePokemonIdsUseCase.execute(id, dto.pokemonIds);
-
-    return UserWithPokemonIdsResponseDto.fromEntity(user);
+    await this.deleteUserService.execute(id);
   }
 }
