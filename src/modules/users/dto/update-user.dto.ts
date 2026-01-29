@@ -1,12 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsArray,
-  IsEmail,
-  IsInt,
-  IsOptional,
-  IsString,
-  MinLength,
-} from 'class-validator';
+import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class UpdateUserDto {
   @ApiPropertyOptional({ example: 'new name' })
@@ -23,14 +16,4 @@ export class UpdateUserDto {
   @IsOptional()
   @MinLength(8)
   password?: string;
-
-  @ApiPropertyOptional({
-    description: 'List of Pokemon IDs owned by the user',
-    example: [1, 4, 7],
-    type: [Number],
-  })
-  @IsOptional()
-  @IsArray()
-  @IsInt({ each: true })
-  pokemonIds?: number[];
 }
