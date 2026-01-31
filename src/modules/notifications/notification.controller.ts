@@ -5,11 +5,14 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Post,
   Put,
   UseGuards,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
@@ -23,6 +26,8 @@ import { GetNotificationByUserIdService } from './application/get-notification-b
 import { JwtAuthGuard } from '../auth/infrastructure/jwt-auth.guard';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import type { AuthUser } from '../auth/domain/auth-user';
+import { CreateNotificationDto } from './dto/create-notification.dto';
+import { CreateNotificationService } from './application/create-notification.service';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -30,6 +35,7 @@ import type { AuthUser } from '../auth/domain/auth-user';
 @UseGuards(JwtAuthGuard)
 export class NotificationController {
   constructor(
+    private readonly createNotificationService: CreateNotificationService,
     private readonly getNotificationByUserIdService: GetNotificationByUserIdService,
     private readonly updateNotificationService: UpdateNotificationService,
     private readonly deleteNotificationService: DeleteNotificationService,
@@ -48,6 +54,25 @@ export class NotificationController {
     );
     return notifications;
   }
+
+  @Post()
+  @ApiOperation({ summary: 'Create a new notification' })
+  @ApiBody({ type: CreateNotificationDto })
+  @ApiCreatedResponse({
+    description: 'The notification has been succesfully created',
+    type: Notification,
+  })
+  async create(
+    @Body() dto: CreateNotificationDto,
+    @CurrentUser() user: AuthUser,
+  ): Promise<Notification> {
+    const notification = await this.createNotificationService.execute({
+      ...dto,
+      currUserId: user.userId,
+    });
+    return notification;
+  }
+
   @Put(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
