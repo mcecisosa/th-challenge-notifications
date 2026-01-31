@@ -8,6 +8,11 @@ export class NotificationRepository {
     private notificationRepository: Repository<Notification>,
   ) {}
 
+  create(notifData: Omit<Notification, 'id'>): Promise<Notification> {
+    const notif = this.notificationRepository.create(notifData);
+    return this.notificationRepository.save(notif);
+  }
+
   findById(id: number): Promise<Notification | null> {
     return this.notificationRepository.findOneBy({ id });
   }
