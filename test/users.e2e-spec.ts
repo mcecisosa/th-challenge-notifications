@@ -166,7 +166,6 @@ describe('UserController (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .post('/users')
-        .set('Authorization', `Bearer ${token}`)
         .send(userData)
         .expect(201);
 
