@@ -42,4 +42,10 @@ export class Notification {
   })
   @Column({ enum: ChannelTypes })
   channel: string;
+
+  constructor(partial: Partial<Notification>) {
+    if (partial) {
+      Object.assign(this, partial);
+    }
+  }
 }
