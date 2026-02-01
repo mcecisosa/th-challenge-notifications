@@ -32,8 +32,6 @@ import { JwtAuthGuard } from '../auth/infrastructure/jwt-auth.guard';
 
 @ApiTags('Users')
 @Controller('users')
-@ApiBearerAuth('jwt')
-@UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(
     private readonly getAllUserService: GetAllUsersService,
@@ -43,6 +41,8 @@ export class UserController {
     private readonly deleteUserService: DeleteUserService,
   ) {}
 
+  @ApiBearerAuth('jwt')
+  @UseGuards(JwtAuthGuard)
   @Get()
   @ApiOperation({ summary: 'Get users' })
   @ApiOkResponse({
@@ -55,6 +55,8 @@ export class UserController {
     return users.map((user) => UserResponseDto.fromEntity(user));
   }
 
+  @ApiBearerAuth('jwt')
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   @ApiOperation({
     summary: 'Get a user by id',
@@ -82,6 +84,8 @@ export class UserController {
     return user;
   }
 
+  @ApiBearerAuth('jwt')
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   @ApiOperation({ summary: 'Update a user' })
   @ApiParam({ name: 'id', description: 'The user id' })
@@ -100,6 +104,8 @@ export class UserController {
     return UserResponseDto.fromEntity(user);
   }
 
+  @ApiBearerAuth('jwt')
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a user' })
   @ApiParam({ name: 'id', description: 'The user id' })
