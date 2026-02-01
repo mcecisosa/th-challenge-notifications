@@ -45,10 +45,10 @@ export async function initTestApp(): Promise<TestAppContext> {
 
 //close test application and DB connections
 export async function closeTestApp(context: TestAppContext): Promise<void> {
-  const { app, dataSource, userRepository } = context;
+  const { app, dataSource /* , userRepository */ } = context;
 
   //Clean up test data
-  await userRepository.clear();
+  //await userRepository.clear(); //hace truncate table
 
   //Close connections
   await dataSource.destroy();
@@ -57,11 +57,21 @@ export async function closeTestApp(context: TestAppContext): Promise<void> {
 
 //reset DB state between tests
 export async function resetTestApp(context: TestAppContext): Promise<void> {
-  const { dataSource, userRepository } = context;
+  const { dataSource /* , userRepository */ } = context;
 
   //Clear all data
-  await userRepository.clear();
+  //await userRepository.clear();
+  await truncateAll(dataSource);
 
   //Reset the database schema
-  await dataSource.synchronize(true);
+  //await dataSource.synchronize(true); //TODO ver de sacar
+}
+
+export async function truncateAll(dataSource: DataSource) {
+  await dataSource.query(`
+    TRUNCATE TABLE
+      notifications,
+      users
+    RESTART IDENTITY CASCADE
+  `);
 }
