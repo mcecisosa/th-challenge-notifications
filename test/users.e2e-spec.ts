@@ -25,6 +25,19 @@ describe('UserController (e2e)', () => {
     //Extract what we need from the context
     app = testContext.app;
     userRepository = testContext.userRepository;
+  });
+
+  afterAll(async () => {
+    //Restore axios mock
+    //axiosGetSpy.mockRestore();
+
+    //Clean up test app resources
+    await closeTestApp(testContext);
+  });
+
+  beforeEach(async () => {
+    //Reset test between tests
+    await resetTestApp(testContext);
 
     const hasher = new BcryptPasswordHasherImpl();
     const hashedPassword = await hasher.hash('12345678');
@@ -46,31 +59,27 @@ describe('UserController (e2e)', () => {
 
     const responseBody = response.body as LoginResponseDto;
     token = responseBody.accessToken;
-  });
-
-  afterAll(async () => {
-    //Restore axios mock
-    //axiosGetSpy.mockRestore();
-
-    //Clean up test app resources
-    await closeTestApp(testContext);
-  });
-
-  beforeEach(async () => {
-    //Reset test between tests
-    await resetTestApp(testContext);
 
     //Reset axios mock calls
     //axiosGetSpy.mockClear();
   });
 
   describe('GET /users', () => {
-    it('should return an empty array when no users exist', () => {
-      return request(app.getHttpServer())
+    it('should return only the logged-in user when no other users exist', async () => {
+      const response = await request(app.getHttpServer())
         .get('/users')
         .set('Authorization', `Bearer ${token}`)
-        .expect(200)
-        .expect([]);
+        .expect(200);
+
+      interface UserResponse {
+        id: number;
+        username: string;
+        email: string;
+      }
+
+      const responseBody = response.body as UserResponse[];
+      expect(responseBody).toHaveLength(1);
+      expect(responseBody[0].email).toBe('admin@test.com');
     });
 
     it('should return all users', async () => {
@@ -101,9 +110,12 @@ describe('UserController (e2e)', () => {
       }
 
       const responseBody = response.body as UserResponse[];
-      expect(responseBody).toHaveLength(2);
-      expect(responseBody[0].username).toBe('user1');
-      expect(responseBody[1].username).toBe('user2');
+      expect(responseBody).toHaveLength(3);
+
+      const usernames = responseBody.map((u) => u.username);
+      expect(usernames).toEqual(
+        expect.arrayContaining(['admin', 'user1', 'user2']), //no tiene en cuenta el orden de c/user en el array
+      );
     });
   });
 

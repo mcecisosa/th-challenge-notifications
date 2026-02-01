@@ -6,6 +6,7 @@ import { User } from 'src/modules/users/user.entity';
 import {
   closeTestApp,
   initTestApp,
+  resetTestApp,
   TestAppContext,
 } from './helpers/test-app.helper';
 import { LoginResponseDto } from 'src/modules/auth/dto/login-user-response.dto';
@@ -19,6 +20,15 @@ describe('AuthController (e2e)', () => {
     testContext = await initTestApp();
     app = testContext.app;
     userRepository = testContext.userRepository;
+  });
+
+  afterAll(async () => {
+    await closeTestApp(testContext);
+  });
+
+  beforeEach(async () => {
+    //Reset test between tests
+    await resetTestApp(testContext);
 
     // 🔐 Hash real UNA sola vez
     const passwordHasher = new BcryptPasswordHasherImpl();
@@ -30,10 +40,6 @@ describe('AuthController (e2e)', () => {
       email: 'juan@example.com',
       password: hashedPassword,
     });
-  });
-
-  afterAll(async () => {
-    await closeTestApp(testContext);
   });
 
   describe('POST /auth/login', () => {
