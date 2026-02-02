@@ -13,9 +13,10 @@ import { SmsStrategy } from './infrastructure/sms.channel';
 import { PushStrategy } from './infrastructure/push.channel';
 import { DeliveryRepository } from './infrastructure/delivery.repository';
 import { Delivery } from './delivery.entity';
+import { ClientsModule } from 'src/clients/clients.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Notification, Delivery])],
+  imports: [TypeOrmModule.forFeature([Notification, Delivery]), ClientsModule],
   controllers: [NotificationController],
   providers: [
     NotificationRepository,
