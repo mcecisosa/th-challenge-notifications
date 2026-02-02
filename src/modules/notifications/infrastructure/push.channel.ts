@@ -7,10 +7,15 @@ import { PushPayloadDto } from '../dto/push-payload.dto';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ChannelTypes } from '../domain/enums/channel.enum';
 import { Notification } from '../notification.entity';
+import { PushClient } from 'src/clients/push.client';
+import { DeliveryStatus } from '../domain/enums/delivery.enum';
 
 @Injectable()
 export class PushStrategy implements ChannelStrategy<PushPayload> {
-  constructor(private readonly deliveryRepository: DeliveryRepository) {}
+  constructor(
+    private readonly deliveryRepository: DeliveryRepository,
+    private readonly pushClient: PushClient,
+  ) {}
 
   validate(payload: unknown): PushPayload {
     const dto = plainToInstance(PushPayloadDto, payload);
@@ -24,15 +29,30 @@ export class PushStrategy implements ChannelStrategy<PushPayload> {
   }
 
   async send(payload: PushPayload, notification: Notification): Promise<void> {
-    //simular envio
-    console.log(`Enviando push a ${payload.deviceToken}`);
-
-    await this.deliveryRepository.create({
+    const newDelivery = await this.deliveryRepository.create({
       notification,
       channel: ChannelTypes.PUSH,
-      status: 'SENT',
+      status: DeliveryStatus.PENDING,
       metadata: { deviceToken: payload.deviceToken },
       createdAt: new Date(),
+    });
+
+    let status: string;
+    try {
+      const response = await this.pushClient.sendPush(
+        payload.deviceToken,
+        notification.title,
+        notification.content,
+      );
+      status = DeliveryStatus.SENT;
+      console.log('response of pushClient:', response);
+    } catch (error) {
+      console.log(error);
+      status = DeliveryStatus.FAILED;
+    }
+
+    await this.deliveryRepository.update(newDelivery.id, {
+      status: status,
     });
   }
 }
