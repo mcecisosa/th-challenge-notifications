@@ -7,10 +7,15 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { DeliveryRepository } from './delivery.repository';
 import { ChannelTypes } from '../domain/enums/channel.enum';
 import { Notification } from '../notification.entity';
+import { EmailClient } from 'src/clients/mail.client';
+import { DeliveryStatus } from '../domain/enums/delivery.enum';
 
 @Injectable()
 export class EmailStrategy implements ChannelStrategy<EmailPayload> {
-  constructor(private readonly deliveryRepository: DeliveryRepository) {}
+  constructor(
+    private readonly deliveryRepository: DeliveryRepository,
+    private readonly emailClient: EmailClient,
+  ) {}
 
   validate(payload: unknown): EmailPayload {
     const dto = plainToInstance(EmailPayloadDto, payload);
@@ -23,17 +28,32 @@ export class EmailStrategy implements ChannelStrategy<EmailPayload> {
     return dto;
   }
   async send(payload: EmailPayload, notification: Notification): Promise<void> {
-    //simular envio
-    console.log(`Enviando email a ${payload.email}`);
-
-    await this.deliveryRepository.create({
+    const newDelivery = await this.deliveryRepository.create({
       notification,
       channel: ChannelTypes.EMAIL,
-      status: 'SENT',
+      status: DeliveryStatus.PENDING,
       metadata: { email: payload.email },
       createdAt: new Date(),
     });
+
+    const templateEmail = `html template email mock con content: ${notification.content}`;
+
+    let status: string;
+    try {
+      const response = await this.emailClient.sendMail(
+        payload.email,
+        notification.title,
+        templateEmail,
+      );
+      status = DeliveryStatus.SENT;
+      console.log('response of emailClient:', response);
+    } catch (error) {
+      console.log(error);
+      status = DeliveryStatus.FAILED;
+    }
+
+    await this.deliveryRepository.update(newDelivery.id, {
+      status: status,
+    });
   }
 }
-
-//aca deberia llamar al service externo como el pokemon api
