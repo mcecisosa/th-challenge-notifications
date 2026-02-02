@@ -12,4 +12,9 @@ export class DeliveryRepository {
     const delivery = this.deliveryRepository.create(deliveryData);
     return this.deliveryRepository.save(delivery);
   }
+
+  async update(id: number, deliveryData: Partial<Delivery>): Promise<void> {
+    await this.deliveryRepository.update(id, deliveryData);
+    return;
+  }
 }
