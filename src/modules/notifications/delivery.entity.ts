@@ -8,6 +8,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { ChannelTypes } from './domain/enums/channel.enum';
 import { Notification } from './notification.entity';
+import { DeliveryStatus } from './domain/enums/delivery.enum';
 
 @Entity('delivery')
 export class Delivery {
@@ -31,9 +32,9 @@ export class Delivery {
 
   @ApiProperty({
     description: 'The status of the notification delivery',
-    example: 'SENDEED',
+    example: 'SENT',
   })
-  @Column()
+  @Column({ enum: DeliveryStatus })
   status: string;
 
   @ApiProperty({
