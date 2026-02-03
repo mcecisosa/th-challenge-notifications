@@ -1,5 +1,5 @@
 import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
-import { IsObject, IsString } from 'class-validator';
+import { IsEnum, IsObject, IsString } from 'class-validator';
 import { ChannelTypes } from '../domain/enums/channel.enum';
 import { EmailPayloadDto } from './email-payload.dto';
 import { SmsPayloadDto } from './sms-payload.dto';
@@ -25,8 +25,7 @@ export class CreateNotificationDto {
     example: ChannelTypes.EMAIL,
     description: 'The channel to send the notification',
   })
-  //@IsEnum(ChannelTypes)
-  @IsString()
+  @IsEnum(ChannelTypes)
   channel: ChannelTypes;
 
   @ApiProperty({
