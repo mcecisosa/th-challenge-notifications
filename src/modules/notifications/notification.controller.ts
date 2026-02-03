@@ -13,6 +13,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
+  ApiExtraModels,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
@@ -28,7 +29,11 @@ import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import type { AuthUser } from '../auth/domain/auth-user';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { CreateNotificationService } from './application/create-notification.service';
+import { EmailPayloadDto } from './dto/email-payload.dto';
+import { SmsPayloadDto } from './dto/sms-payload.dto';
+import { PushPayloadDto } from './dto/push-payload.dto';
 
+@ApiExtraModels(EmailPayloadDto, SmsPayloadDto, PushPayloadDto)
 @ApiTags('Notifications')
 @Controller('notifications')
 @ApiBearerAuth('jwt')
