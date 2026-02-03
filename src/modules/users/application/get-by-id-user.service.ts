@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '../user.entity';
-import { UserNotFoundError } from '../domain/errors/user-not-found.error';
 import { UserRepository } from '../infrastructure/user.repository';
+import { EntityNotFoundError } from 'src/shared/errors/not-found.error';
 
 @Injectable()
 export class getUserByIdService {
@@ -9,7 +9,7 @@ export class getUserByIdService {
 
   async execute(id: number): Promise<User> {
     const user = await this.userRepository.findById(id);
-    if (!user) throw new UserNotFoundError(id);
+    if (!user) throw new EntityNotFoundError('User', id);
 
     return user;
   }
