@@ -37,8 +37,9 @@ export class Notification {
   content: string;
 
   @ApiProperty({
+    enum: ChannelTypes,
+    example: ChannelTypes.EMAIL,
     description: 'The channel to send the notification',
-    example: ChannelTypes,
   })
   @Column({ enum: ChannelTypes })
   channel: string;
