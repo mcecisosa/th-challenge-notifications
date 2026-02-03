@@ -1,6 +1,11 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from 'src/app.module';
+import { EmailClient } from 'src/clients/mail.client';
+import { PushClient } from 'src/clients/push.client';
+import { SmsClient } from 'src/clients/sms.client';
+import { Delivery } from 'src/modules/notifications/delivery.entity';
+import { Notification } from 'src/modules/notifications/notification.entity';
 import { User } from 'src/modules/users/user.entity';
 import { HttpExceptionFilter } from 'src/shared/filters/http-exception.filter';
 import { DataSource, Repository } from 'typeorm';
@@ -9,13 +14,29 @@ export interface TestAppContext {
   app: INestApplication;
   dataSource: DataSource;
   userRepository: Repository<User>;
+  notificationRepository: Repository<Notification>;
+  deliveryRepository: Repository<Delivery>;
+  mockEmailClient: { sendMail: jest.Mock };
+  mockSmsClient: { sendSms: jest.Mock };
+  mockPushClient: { sendPush: jest.Mock };
 }
 
 //Initialize a test application with test database configuration
 export async function initTestApp(): Promise<TestAppContext> {
+  const mockEmailClient = { sendMail: jest.fn() };
+  const mockSmsClient = { sendSms: jest.fn() };
+  const mockPushClient = { sendPush: jest.fn() };
+
   const moduleFixture: TestingModule = await Test.createTestingModule({
     imports: [AppModule],
-  }).compile();
+  })
+    .overrideProvider(EmailClient)
+    .useValue(mockEmailClient)
+    .overrideProvider(SmsClient)
+    .useValue(mockSmsClient)
+    .overrideProvider(PushClient)
+    .useValue(mockPushClient)
+    .compile();
 
   const app = moduleFixture.createNestApplication();
 
@@ -39,8 +60,18 @@ export async function initTestApp(): Promise<TestAppContext> {
 
   //Get repository
   const userRepository = dataSource.getRepository(User);
-
-  return { app, dataSource, userRepository };
+  const notificationRepository = dataSource.getRepository(Notification);
+  const deliveryRepository = dataSource.getRepository(Delivery);
+  return {
+    app,
+    dataSource,
+    userRepository,
+    notificationRepository,
+    deliveryRepository,
+    mockEmailClient,
+    mockSmsClient,
+    mockPushClient,
+  };
 }
 
 //close test application and DB connections
