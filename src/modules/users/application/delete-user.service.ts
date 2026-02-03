@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { UserNotFoundError } from '../domain/errors/user-not-found.error';
 import { UserRepository } from '../infrastructure/user.repository';
+import { EntityNotFoundError } from 'src/shared/errors/not-found.error';
 
 @Injectable()
 export class DeleteUserService {
@@ -9,6 +9,6 @@ export class DeleteUserService {
   async execute(id: number): Promise<void> {
     const deleted = await this.userRepository.delete(id);
 
-    if (!deleted) throw new UserNotFoundError(id);
+    if (!deleted) throw new EntityNotFoundError('User', id);
   }
 }
