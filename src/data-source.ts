@@ -11,20 +11,21 @@ dotenv.config({
 });
 
 // Get environment variables with fallbacks
-const host = process.env.DATABASE_HOST || 'localhost';
-const port = parseInt(process.env.DATABASE_PORT || '5432');
-const username = process.env.DATABASE_USER || 'postgres';
-const password = process.env.DATABASE_PASSWORD || 'postgres';
-const database = process.env.DATABASE_NAME || 'app_dev';
+// const host = process.env.DATABASE_HOST || 'localhost';
+// const port = parseInt(process.env.DATABASE_PORT || '5432');
+// const username = process.env.DATABASE_USER || 'postgres';
+// const password = process.env.DATABASE_PASSWORD || 'postgres';
+// const database = process.env.DATABASE_NAME || 'app_dev';
 //const synchronize = process.env.DATABASE_SYNC === 'true' ? true : false;
 
 const dataSourceConfig = {
   type: 'postgres' as const,
-  host,
-  port,
-  username,
-  password,
-  database,
+  url: process.env.DATABASE_URL,
+  // host,
+  // port,
+  // username,
+  // password,
+  // database,
   entities: [User, Notification, Delivery],
   synchronize: true,
   migrations: [
@@ -34,8 +35,9 @@ const dataSourceConfig = {
   migrationsTableName: 'custom_migration_table',
 };
 
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('DB HOST:', process.env.DATABASE_HOST);
-console.log('DB NAME:', process.env.DATABASE_NAME);
+console.log(
+  'DB CONFIG:',
+  process.env.DATABASE_URL ? 'DATABASE_URL OK' : 'DATABASE_URL MISSING',
+);
 
 export const AppDataSource = new DataSource(dataSourceConfig);
